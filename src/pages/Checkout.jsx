@@ -48,7 +48,7 @@ const CheckoutForm = () => {
       address: user?.address?.street || "",
       city: user?.address?.city || "",
       state: user?.address?.state || "",
-      country: user?.address?.country || "lebanon",
+      country: user?.address?.country || "Lebanon",
     },
   });
 
