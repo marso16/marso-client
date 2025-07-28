@@ -84,22 +84,6 @@ const Header = () => {
             <span className="text-2xl font-bold text-primary">Marso's</span>
           </Link>
 
-          {/* Search bar */}
-          {/* <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <form onSubmit={handleSearch} className="flex w-full">
-              <Input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="rounded-r-none"
-              />
-              <Button type="submit" className="rounded-l-none">
-                <Search className="h-4 w-4" />
-              </Button>
-            </form>
-          </div> */}
-
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
             {/* Cart */}
@@ -186,7 +170,7 @@ const Header = () => {
         </div>
 
         {/* Mobile search */}
-        <div className="md:hidden mt-4">
+        {/* <div className="md:hidden mt-4">
           <form onSubmit={handleSearch} className="flex">
             <Input
               type="text"
@@ -199,7 +183,7 @@ const Header = () => {
               <Search className="h-4 w-4" />
             </Button>
           </form>
-        </div>
+        </div> */}
       </div>
 
       {/* Navigation */}
