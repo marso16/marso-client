@@ -76,21 +76,6 @@ const ProductManagement = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/admin"><ArrowLeft className="h-4 w-4" /></Link>
-          </Button>
-          <h1 className="text-3xl font-bold">Product Management</h1>
-        </div>
-        <Button asChild>
-          <Link to="/admin/products/new">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add New Product
-          </Link>
-        </Button>
-      </div> */}
-
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <Button variant="ghost" size="icon" asChild>
