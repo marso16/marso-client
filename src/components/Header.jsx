@@ -85,7 +85,7 @@ const Header = () => {
           </Link>
 
           {/* Search bar */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          {/* <div className="hidden md:flex flex-1 max-w-md mx-8">
             <form onSubmit={handleSearch} className="flex w-full">
               <Input
                 type="text"
@@ -98,7 +98,7 @@ const Header = () => {
                 <Search className="h-4 w-4" />
               </Button>
             </form>
-          </div>
+          </div> */}
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
