@@ -170,7 +170,7 @@ const Header = () => {
         </div>
 
         {/* Mobile search */}
-        {/* <div className="md:hidden mt-4">
+        <div className="md:hidden mt-4">
           <form onSubmit={handleSearch} className="flex">
             <Input
               type="text"
@@ -183,7 +183,7 @@ const Header = () => {
               <Search className="h-4 w-4" />
             </Button>
           </form>
-        </div> */}
+        </div>
       </div>
 
       {/* Navigation */}
