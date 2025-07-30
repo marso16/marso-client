@@ -9,9 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, ArrowLeft } from "lucide-react";
-// import { toast } from 'react-hot-toast';
 import { safeToast } from "@/lib/utils";
 
 const productSchema = z.object({
@@ -50,8 +48,8 @@ const ProductForm = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    /* setValue,*/
     reset,
+    watch,
   } = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -63,6 +61,8 @@ const ProductForm = () => {
       stock: 0,
     },
   });
+
+  const watchDescription = watch("description");
 
   useEffect(() => {
     if (isEditing) {
@@ -76,7 +76,6 @@ const ProductForm = () => {
       const response = await productsAPI.getProduct(id);
       const product = response.data;
 
-      // Populate form with existing product data
       reset({
         name: product.name,
         description: product.description,
@@ -86,7 +85,6 @@ const ProductForm = () => {
         stock: product.stock,
       });
 
-      // Set image URLs
       setImageUrls(
         product.images.length > 0 ? product.images.map((img) => img.url) : [""]
       );
@@ -101,7 +99,6 @@ const ProductForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      // Filter out empty image URLs
       const validImageUrls = imageUrls.filter((url) => url.trim() !== "");
       const productData = {
         ...data,
@@ -195,16 +192,35 @@ const ProductForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">
+                Description{" "}
+                <span className="text-muted-foreground">
+                  (Enter one bullet point per line)
+                </span>
+              </Label>
               <Textarea
                 id="description"
+                placeholder={`Example:\n- High-quality material\n- Lightweight and durable\n- 2-year warranty`}
                 {...register("description")}
-                rows={4}
+                rows={6}
               />
               {errors.description && (
                 <p className="text-sm text-destructive">
                   {errors.description.message}
                 </p>
+              )}
+              {watchDescription?.trim() && (
+                <div className="mt-2 p-2 border rounded bg-muted text-sm">
+                  <p className="font-semibold mb-1">Preview:</p>
+                  <ul className="list-disc list-inside">
+                    {watchDescription
+                      .split("\n")
+                      .filter((line) => line.trim() !== "")
+                      .map((line, idx) => (
+                        <li key={idx}>{line.trim()}</li>
+                      ))}
+                  </ul>
+                </div>
               )}
             </div>
 

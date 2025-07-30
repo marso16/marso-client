@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { productsAPI } from "../services/api";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Plus, Minus, Loader2, Star, Link } from "lucide-react";
+import { ShoppingCart, Plus, Minus, Loader2, Star } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -154,7 +154,6 @@ const ProductDetail = () => {
             alt={product.name}
             className="w-full max-w-lg h-auto object-contain rounded-lg shadow-md"
           />
-          {/* Add more images here if available */}
           {product.images.length > 1 && (
             <div className="flex space-x-2 mt-4">
               {product.images.map((img, index) => (
@@ -187,9 +186,19 @@ const ProductDetail = () => {
               ({product.numReviews} reviews)
             </span>
           </div>
-          <p className="text-muted-foreground text-lg">{product.description}</p>
+
+          {/* Description as bullet points */}
+          <ul className="list-disc list-inside text-muted-foreground text-md whitespace-pre-line">
+            {product.description
+              .split("\n")
+              .filter((line) => line.trim() !== "")
+              .map((line, index) => (
+                <li key={index}>{line.trim()}</li>
+              ))}
+          </ul>
+
           <div className="flex items-baseline space-x-4">
-            <span className="text-5xl font-extrabold text-primary">
+            <span className="text-3xl font-extrabold text-primary">
               ${product.price.toFixed(2)}
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
@@ -239,44 +248,6 @@ const ProductDetail = () => {
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
-              {/* <Label htmlFor="quantity" className="text-lg">
-                Quantity:
-              </Label>
-              <Input
-                id="quantity"
-                type="number"
-                min="1"
-                max={product.stock}
-                value={quantity}
-                onChange={(e) => {
-                  let value = e.target.value;
-                  if (!/^\d*$/.test(value)) return;
-                  value = value.replace(/^0+/, "") || "";
-
-                  const num = parseInt(value, 10);
-                  if (value === "") {
-                    setQuantity("");
-                    return;
-                  }
-                  if (num < 1) {
-                    setQuantity(1);
-                    return;
-                  }
-                  if (num > product.stock) {
-                    safeToast.error(`Only ${product.stock} item(s) in stock`);
-                    return;
-                  }
-
-                  setQuantity(num);
-                }}
-                onBlur={() => {
-                  if (!quantity || quantity < 1) {
-                    setQuantity(1);
-                  }
-                }}
-                className="w-24 text-center"
-                disabled={product.stock === 0}
-              /> */}
             </div>
 
             <div className="flex space-x-3">
@@ -361,7 +332,7 @@ const ProductDetail = () => {
 
                 <div>
                   <div className="py-3">
-                    <Label htmlFor="rating">Comment</Label>
+                    <Label htmlFor="comment">Comment</Label>
                   </div>
                   <Textarea
                     id="comment"
