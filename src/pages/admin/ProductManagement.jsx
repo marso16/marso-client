@@ -12,7 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Loader2, PlusCircle, Edit, Trash2, ArrowLeft } from "lucide-react";
-// import { toast } from "react-hot-toast";
 import { safeToast } from "@/lib/utils";
 
 const ProductManagement = () => {
@@ -27,7 +26,7 @@ const ProductManagement = () => {
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
-      const response = await productsAPI.getProducts(); // Assuming admin can get all products without pagination for management
+      const response = await productsAPI.getProducts();
       setProducts(response.data.products);
       setError("");
     } catch (err) {
@@ -48,6 +47,26 @@ const ProductManagement = () => {
       } catch (err) {
         safeToast.error(
           err.response?.data?.message || "Failed to delete product"
+        );
+      }
+    }
+  };
+
+  const deleteAllProducts = async () => {
+    if (products.length === 0) {
+      safeToast.error("There are no products to delete.");
+      return;
+    }
+
+    if (window.confirm("Are you sure you want to delete ALL products?")) {
+      try {
+        await productsAPI.deleteAllProducts();
+        safeToast.success("All products deleted successfully!");
+        fetchProducts();
+      } catch (err) {
+        console.error("Failed to delete all products:", err);
+        safeToast.error(
+          err.response?.data?.message || "Failed to delete all products"
         );
       }
     }
@@ -86,15 +105,27 @@ const ProductManagement = () => {
           <h1 className="text-2xl sm:text-3xl font-bold">Product Management</h1>
         </div>
 
-        <Button asChild className="w-full sm:w-auto">
-          <Link
-            to="/admin/products/new"
-            className="flex items-center justify-center"
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button asChild className="w-full sm:w-auto">
+            <Link
+              to="/admin/products/new"
+              className="flex items-center justify-center"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add New Product
+            </Link>
+          </Button>
+
+          <Button
+            variant="destructive"
+            className="w-full sm:w-auto"
+            onClick={deleteAllProducts}
+            disabled={products.length === 0}
           >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add New Product
-          </Link>
-        </Button>
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete All
+          </Button>
+        </div>
       </div>
 
       {products.length === 0 ? (

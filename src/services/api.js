@@ -50,7 +50,6 @@ export const authAPI = {
     api.put("/auth/change-password", passwordData),
   verifyToken: () => api.get("/auth/verify"),
   getAllUsers: () => api.get("/auth/users"),
-  // updateUserRole: (id, roleData) => api.put(`/auth/users/${id}`, roleData),
   updateUserRole: (id, roleData) => api.put(`/auth/users/${id}/role`, roleData),
   deleteUser: (id) => api.delete(`/auth/users/${id}`),
 };
@@ -65,6 +64,7 @@ export const productsAPI = {
   createProduct: (productData) => api.post("/products", productData),
   updateProduct: (id, productData) => api.put(`/products/${id}`, productData),
   deleteProduct: (id) => api.delete(`/products/${id}`),
+  deleteAllProducts: () => api.delete("/products"),
 };
 
 // Cart API
