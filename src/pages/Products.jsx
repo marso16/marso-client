@@ -197,21 +197,16 @@ const Products = () => {
           >
             View Details
           </Button>
-          <Button
-            className="flex-1"
-            onClick={() => handleAddToCart(product._id)}
-            disabled={product.stock === 0}
-          >
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Add to Cart
-          </Button>
         </div>
-        <WishlistButton
-          productId={product._id}
-          size="sm"
-          variant="outline"
-          className="w-full"
-        />
+
+        <Button
+          className="flex gap-2 w-full"
+          onClick={() => handleAddToCart(product._id)}
+          disabled={product.stock === 0}
+        >
+          <ShoppingCart className="h-4 w-4 mr-2" />
+          Add to Cart
+        </Button>
       </CardFooter>
     </Card>
   );

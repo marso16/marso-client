@@ -18,9 +18,7 @@ const AdminDashboard = () => {
               <Package className="h-6 w-6 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Manage products, categories, and inventory.
-              </p>
+              <p className="text-sm text-muted-foreground">Manage products</p>
             </CardContent>
           </Card>
         </Link>

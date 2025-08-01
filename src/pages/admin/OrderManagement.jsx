@@ -100,7 +100,6 @@ const OrderManagement = () => {
                   <TableHead>Total</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -134,13 +133,6 @@ const OrderManagement = () => {
                     </TableCell>
                     <TableCell>
                       {new Date(order.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="outline" size="icon" asChild>
-                        <Link to={`/orders/${order._id}`}>
-                          <Edit className="h-4 w-4" />
-                        </Link>
-                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
