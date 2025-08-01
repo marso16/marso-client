@@ -26,23 +26,20 @@ import {
   ShoppingCart,
   Filter,
   Search,
-  Grid3X3,
-  List,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { productsAPI } from "../services/api";
 import { useCart } from "../context/CartContext";
-// import toast from "react-hot-toast";
 import { safeToast } from "@/lib/utils";
 import WishlistButton from "../components/WishlistButton";
 
 const Products = () => {
-  const [products, setProducts] = useState([]);
+  const [, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pagination, setPagination] = useState({});
   const [filters, setFilters] = useState({ categories: [], brands: [] });
-  const [viewMode, setViewMode] = useState("grid");
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -81,6 +78,7 @@ const Products = () => {
       const params = Object.fromEntries(searchParams);
       const response = await productsAPI.getProducts(params);
       setProducts(response.data.products);
+      setFilteredProducts(response.data.products);
       setPagination(response.data.pagination);
       setFilters(response.data.filters);
     } catch (error) {
@@ -90,6 +88,16 @@ const Products = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    if (searchQuery.trim() === "") {
+      params.delete("search");
+    } else {
+      params.set("search", searchQuery);
+    }
+    setSearchParams(params);
+  }, [searchQuery]);
 
   const updateFilters = (newFilters) => {
     const params = new URLSearchParams(searchParams);
@@ -102,15 +110,9 @@ const Products = () => {
       }
     });
 
-    // Reset to first page when filters change
     params.delete("page");
 
     setSearchParams(params);
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    updateFilters({ search: searchQuery });
   };
 
   const handleAddToCart = async (productId) => {
@@ -155,12 +157,8 @@ const Products = () => {
           </div>
         )}
       </div>
-      <CardContent className={`p-4 ${viewMode === "list" ? "flex-1" : ""}`}>
-        <h3
-          className={`font-semibold mb-2 line-clamp-2 ${
-            viewMode === "grid" ? "text-lg" : "text-base"
-          }`}
-        >
+      <CardContent className="list">
+        <h3 className="font-semibold mb-2 line-clamp-2 text-lg">
           {product.name}
         </h3>
         <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
@@ -220,7 +218,7 @@ const Products = () => {
 
   const ProductSkeleton = () => (
     <Card>
-      <Skeleton className={`w-full ${viewMode === "grid" ? "h-48" : "h-32"}`} />
+      <Skeleton className="w-full h-48" />
       <CardContent className="p-4">
         <Skeleton className="h-6 w-3/4 mb-2" />
         <Skeleton className="h-4 w-full mb-2" />
@@ -236,6 +234,8 @@ const Products = () => {
 
   const FilterPanel = () => (
     <div className="space-y-6">
+      {/* ... same as your original FilterPanel ... */}
+      {/* Category filter */}
       <div>
         <h3 className="font-semibold mb-3">Category</h3>
         <Select
@@ -258,7 +258,7 @@ const Products = () => {
           </SelectContent>
         </Select>
       </div>
-
+      {/* Brand filter */}
       <div>
         <h3 className="font-semibold mb-3">Brand</h3>
         <Select
@@ -281,7 +281,7 @@ const Products = () => {
           </SelectContent>
         </Select>
       </div>
-
+      {/* Price Range filter */}
       <div>
         <h3 className="font-semibold mb-3">Price Range</h3>
         <div className="space-y-3">
@@ -325,7 +325,7 @@ const Products = () => {
           </Button>
         </div>
       </div>
-
+      {/* Minimum Rating filter */}
       <div>
         <h3 className="font-semibold mb-3">Minimum Rating</h3>
         <Select
@@ -363,7 +363,7 @@ const Products = () => {
 
         {/* Search and Sort */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <form onSubmit={handleSearch} className="flex flex-1">
+          <div className="flex flex-1">
             <Input
               type="text"
               placeholder="Search products..."
@@ -371,10 +371,10 @@ const Products = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="rounded-r-none"
             />
-            <Button type="submit" className="rounded-l-none">
+            <Button className="rounded-l-none" disabled>
               <Search className="h-4 w-4" />
             </Button>
-          </form>
+          </div>
 
           <div className="flex ">
             <Select
@@ -431,31 +431,16 @@ const Products = () => {
         {/* Products */}
         <div className="flex-1">
           {isLoading ? (
-            <div
-              className={`grid gap-6 ${
-                viewMode === "grid"
-                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                  : "grid-cols-1"
-              }`}
-            >
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {[...Array(12)].map((_, i) => (
                 <ProductSkeleton key={i} />
               ))}
             </div>
-          ) : products.length > 0 ? (
+          ) : filteredProducts.length > 0 ? (
             <>
-              <div
-                className={`grid gap-6 ${
-                  viewMode === "grid"
-                    ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                    : "grid-cols-1"
-                }`}
-              >
-                {products.map((product) => (
-                  <div
-                    key={product._id}
-                    className={viewMode === "list" ? "flex" : ""}
-                  >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                {filteredProducts.map((product) => (
+                  <div key={product._id} className="flex">
                     <ProductCard product={product} />
                   </div>
                 ))}

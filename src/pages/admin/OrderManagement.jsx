@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link /*useNavigate*/ } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ordersAPI } from "../../services/api";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -11,16 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Loader2, Edit, ArrowLeft } from "lucide-react";
-// import { toast } from 'react-hot-toast';
 import { safeToast } from "@/lib/utils";
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  // const navigate = useNavigate();
 
   useEffect(() => {
     fetchOrders();
@@ -29,7 +26,7 @@ const OrderManagement = () => {
   const fetchOrders = async () => {
     try {
       setIsLoading(true);
-      const response = await ordersAPI.getAllOrders(); // Assuming admin can get all orders
+      const response = await ordersAPI.getAllOrders();
       setOrders(response.data.orders);
       setError("");
     } catch (err) {
@@ -52,25 +49,6 @@ const OrderManagement = () => {
       );
     }
   };
-
-  // const getStatusBadgeVariant = (status) => {
-  //   switch (status) {
-  //     case "pending":
-  //       return "warning";
-  //     case "processing":
-  //       return "info";
-  //     case "shipped":
-  //       return "default";
-  //     case "delivered":
-  //       return "success";
-  //     case "cancelled":
-  //       return "destructive";
-  //     case "refunded":
-  //       return "secondary";
-  //     default:
-  //       return "secondary";
-  //   }
-  // };
 
   if (isLoading) {
     return (

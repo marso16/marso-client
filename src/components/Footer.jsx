@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
   Facebook,
@@ -11,10 +10,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  CreditCard,
-  Shield,
-  Truck,
-  RotateCcw,
 } from "lucide-react";
 
 const Footer = () => {

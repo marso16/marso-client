@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { productsAPI } from "../../services/api";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -13,11 +13,23 @@ import {
 } from "@/components/ui/table";
 import { Loader2, PlusCircle, Edit, Trash2, ArrowLeft } from "lucide-react";
 import { safeToast } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -38,37 +50,35 @@ const ProductManagement = () => {
     }
   };
 
-  const handleDeleteProduct = async (productId) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      try {
-        await productsAPI.deleteProduct(productId);
-        safeToast.success("Product deleted successfully!");
-        fetchProducts(); // Refresh the list
-      } catch (err) {
-        safeToast.error(
-          err.response?.data?.message || "Failed to delete product"
-        );
-      }
+  const handleDeleteProduct = async () => {
+    try {
+      await productsAPI.deleteProduct(selectedProductId);
+      safeToast.success("Product deleted successfully!");
+      fetchProducts();
+    } catch (err) {
+      safeToast.error(
+        err.response?.data?.message || "Failed to delete product"
+      );
+    } finally {
+      setSelectedProductId(null); // Reset after action
     }
   };
 
-  const deleteAllProducts = async () => {
+  const handleDeleteAllProducts = async () => {
     if (products.length === 0) {
       safeToast.error("There are no products to delete.");
       return;
     }
 
-    if (window.confirm("Are you sure you want to delete ALL products?")) {
-      try {
-        await productsAPI.deleteAllProducts();
-        safeToast.success("All products deleted successfully!");
-        fetchProducts();
-      } catch (err) {
-        console.error("Failed to delete all products:", err);
-        safeToast.error(
-          err.response?.data?.message || "Failed to delete all products"
-        );
-      }
+    try {
+      await productsAPI.deleteAllProducts();
+      safeToast.success("All products deleted successfully!");
+      fetchProducts();
+    } catch (err) {
+      console.error("Failed to delete all products:", err);
+      safeToast.error(
+        err.response?.data?.message || "Failed to delete all products"
+      );
     }
   };
 
@@ -116,15 +126,36 @@ const ProductManagement = () => {
             </Link>
           </Button>
 
-          <Button
-            variant="destructive"
-            className="w-full sm:w-auto"
-            onClick={deleteAllProducts}
-            disabled={products.length === 0}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete All
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                className="w-full sm:w-auto"
+                disabled={products.length === 0}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete All
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete All Products?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently remove <strong>all products</strong>.
+                  This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteAllProducts}
+                  disabled={products.length === 0}
+                >
+                  Yes, Delete All
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
@@ -185,13 +216,43 @@ const ProductManagement = () => {
                               <Edit className="h-4 w-4" />
                             </Link>
                           </Button>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => handleDeleteProduct(product._id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                onClick={() =>
+                                  setSelectedProductId(product._id)
+                                }
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Delete Product?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete{" "}
+                                  <strong>{product.name}</strong>? This action
+                                  cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel
+                                  onClick={() => setSelectedProductId(null)}
+                                >
+                                  Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={handleDeleteProduct}
+                                >
+                                  Yes, Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>

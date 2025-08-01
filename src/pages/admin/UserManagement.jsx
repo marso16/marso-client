@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link /*useNavigate*/ } from "react-router-dom";
-import { authAPI } from "../../services/api"; // Assuming authAPI has admin user management functions
+import { Link } from "react-router-dom";
+import { authAPI } from "../../services/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -11,14 +11,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, Edit, Trash2, ArrowLeft } from "lucide-react";
-// import { toast } from "react-hot-toast";
+import { Loader2, Trash2, ArrowLeft } from "lucide-react";
 import { safeToast } from "@/lib/utils";
+
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -27,7 +39,6 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      // Assuming an admin endpoint to get all users
       const response = await authAPI.getAllUsers();
       setUsers(response.data.users);
       setError("");
@@ -42,20 +53,20 @@ const UserManagement = () => {
 
   const currentUser = JSON.parse(localStorage.getItem("user"));
 
-  const handleDeleteUser = async (userId) => {
-    if (userId === currentUser?._id) {
+  const handleDeleteUser = async () => {
+    if (selectedUserId === currentUser?._id) {
       safeToast.error("You cannot delete your own account while logged in.");
       return;
     }
 
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      try {
-        await authAPI.deleteUser(userId);
-        safeToast.success("User deleted successfully!");
-        fetchUsers(); // Refresh the list
-      } catch (err) {
-        safeToast.error(err.response?.data?.message || "Failed to delete user");
-      }
+    try {
+      await authAPI.deleteUser(selectedUserId);
+      safeToast.success("User deleted successfully!");
+      fetchUsers();
+    } catch (err) {
+      safeToast.error(err.response?.data?.message || "Failed to delete user");
+    } finally {
+      setSelectedUserId(null);
     }
   };
 
@@ -160,19 +171,49 @@ const UserManagement = () => {
                     </TableCell>
 
                     <TableCell className="flex space-x-2">
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => handleDeleteUser(user._id)}
-                        disabled={user._id === currentUser?._id}
-                        title={
-                          user._id === currentUser?._id
-                            ? "You cannot delete your own account"
-                            : "Delete user"
-                        }
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {user._id === currentUser?._id ? (
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          disabled
+                          title="You cannot delete your own account"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => setSelectedUserId(user._id)}
+                              title="Delete user"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete User?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete{" "}
+                                <strong>{user.name}</strong>? This action cannot
+                                be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel
+                                onClick={() => setSelectedUserId(null)}
+                              >
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction onClick={handleDeleteUser}>
+                                Yes, Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

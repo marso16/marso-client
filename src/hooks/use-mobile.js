@@ -17,7 +17,3 @@ export function useIsMobile() {
 
   return !!isMobile;
 }
-
-// wfewfioewfio iweio
-
-// dfqewfo opeqr
