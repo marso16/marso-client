@@ -34,7 +34,6 @@ const Login = () => {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
       const from = location.state?.from?.pathname || "/";
@@ -48,15 +47,11 @@ const Login = () => {
     setEmailNotVerified(false);
 
     const result = await login(data);
-
     if (!result.success) {
-      // Check if the error is related to email verification
       if (result.emailNotVerified) {
         setEmailNotVerified(true);
         setUnverifiedEmail(result.email || data.email);
-        setError(
-          "Please verify your email before logging in. Check your inbox for the OTP."
-        );
+        setError("Please verify your email before logging in.");
       } else {
         setError(result.message || "Login failed");
       }
@@ -68,9 +63,6 @@ const Login = () => {
 
   const handleResendOTP = async () => {
     setResendingOTP(true);
-    setError("");
-    setSuccess("");
-
     try {
       await authAPI.resendOTP({ email: unverifiedEmail });
       setSuccess("OTP sent successfully to your email");
@@ -81,42 +73,32 @@ const Login = () => {
     }
   };
 
-  const handleGoToVerification = () => {
-    navigate("/register", {
-      state: {
-        email: unverifiedEmail,
-        step: 2,
-      },
-    });
-  };
-
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-muted/30">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Welcome back
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md shadow-lg rounded-2xl border border-border bg-card">
+        <CardHeader className="space-y-2">
+          <CardTitle className="text-3xl font-extrabold text-center tracking-tight">
+            Welcome Back
           </CardTitle>
-          <CardDescription className="text-center">
-            Enter your credentials to access your account
+          <CardDescription className="text-center text-muted-foreground">
+            Sign in to your account
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <CardContent className="space-y-4">
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-
             {success && (
               <Alert>
                 <Mail className="h-4 w-4" />
@@ -128,53 +110,51 @@ const Login = () => {
               <Alert>
                 <Mail className="h-4 w-4" />
                 <AlertDescription>
-                  <div className="space-y-2">
-                    <p>
-                      Your email is not verified. Please check your inbox for
-                      the OTP.
-                    </p>
-                    <div className="flex space-x-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleResendOTP}
-                        disabled={resendingOTP}
-                      >
-                        {resendingOTP ? (
-                          <>
-                            <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                            Sending...
-                          </>
-                        ) : (
-                          "Resend OTP"
-                        )}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleGoToVerification}
-                      >
-                        Enter OTP
-                      </Button>
-                    </div>
+                  Your email is not verified.
+                  <div className="mt-2 flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResendOTP}
+                      disabled={resendingOTP}
+                    >
+                      {resendingOTP ? (
+                        <>
+                          <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        "Resend OTP"
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        navigate("/register", {
+                          state: { email: unverifiedEmail, step: 2 },
+                        })
+                      }
+                    >
+                      Enter OTP
+                    </Button>
                   </div>
                 </AlertDescription>
               </Alert>
             )}
 
-            <div className="space-y-2">
+            {/* Email */}
+            <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder="john.doe@example.com"
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
                     value: /^\S+@\S+$/i,
-                    message: "Invalid email address",
+                    message: "Invalid email format",
                   },
                 })}
                 className={errors.email ? "border-destructive" : ""}
@@ -186,13 +166,14 @@ const Login = () => {
               )}
             </div>
 
-            <div className="space-y-2">
+            {/* Password */}
+            <div className="space-y-1">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder="••••••••"
                   {...register("password", {
                     required: "Password is required",
                     minLength: {
@@ -208,7 +189,7 @@ const Login = () => {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -225,28 +206,26 @@ const Login = () => {
               )}
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="remember"
-                  className="rounded border-gray-300"
-                  {...register("rememberMe")}
-                />
-                <Label htmlFor="remember" className="text-sm">
-                  Remember me
-                </Label>
-              </div>
+            {/* Remember + Forgot */}
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2">
+                <input type="checkbox" {...register("rememberMe")} />
+                Remember me
+              </label>
               <Link
                 to="/forgot-password"
-                className="text-sm text-primary hover:underline"
+                className="text-primary hover:underline"
               >
                 Forgot password?
               </Link>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <CardFooter className="flex flex-col gap-4">
+            <Button
+              type="submit"
+              className="w-full font-medium"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -256,16 +235,15 @@ const Login = () => {
                 "Sign In"
               )}
             </Button>
-
-            <div className="text-center text-sm">
-              Don't have an account?{" "}
+            <p className="text-center text-sm text-muted-foreground">
+              Don’t have an account?{" "}
               <Link
                 to="/register"
-                className="text-primary hover:underline font-medium"
+                className="text-primary font-medium hover:underline"
               >
                 Sign up
               </Link>
-            </div>
+            </p>
           </CardFooter>
         </form>
       </Card>
